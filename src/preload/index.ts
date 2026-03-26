@@ -55,6 +55,18 @@ contextBridge.exposeInMainWorld("api", {
     ipcRenderer.removeAllListeners("whisper:progress");
   },
 
+  // CLAP zero-shot audio classification
+  clapInit: () => ipcRenderer.invoke("clap:init"),
+  clapClassify: (audioData: number[], labels: string[]) =>
+    ipcRenderer.invoke("clap:classify", audioData, labels),
+  clapStatus: () => ipcRenderer.invoke("clap:status"),
+  onClapProgress: (callback: (progress: { status: string; progress?: number; file?: string }) => void) => {
+    ipcRenderer.on("clap:progress", (_e, progress) => callback(progress));
+  },
+  removeClapProgressListener: () => {
+    ipcRenderer.removeAllListeners("clap:progress");
+  },
+
   // File dialog
   selectModelZip: () => ipcRenderer.invoke("dialog:selectModelZip"),
 });

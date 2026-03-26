@@ -22,6 +22,12 @@ import {
   isLoading as whisperLoading,
   getModelId as whisperModelId,
 } from "./whisper-service";
+import {
+  initClap,
+  classify as clapClassify,
+  isReady as clapReady,
+  isLoading as clapLoading,
+} from "./clap-service";
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -114,6 +120,35 @@ function setupIPC(): void {
     ready: whisperReady(),
     loading: whisperLoading(),
     model: whisperModelId(),
+  }));
+
+  // CLAP zero-shot audio classification
+  ipcMain.handle("clap:init", async () => {
+    try {
+      await initClap((progress) => {
+        if (mainWindow) {
+          mainWindow.webContents.send("clap:progress", progress);
+        }
+      });
+      return { success: true };
+    } catch (e: any) {
+      return { success: false, error: e.message };
+    }
+  });
+
+  ipcMain.handle("clap:classify", async (_event, audioData: number[], labels: string[]) => {
+    try {
+      const float32 = new Float32Array(audioData);
+      const results = await clapClassify(float32, labels);
+      return { success: true, results };
+    } catch (e: any) {
+      return { success: false, error: e.message };
+    }
+  });
+
+  ipcMain.handle("clap:status", () => ({
+    ready: clapReady(),
+    loading: clapLoading(),
   }));
 
   // File dialog for model ZIP loading

@@ -6,6 +6,7 @@ interface OscMessage {
 
 const TAB_PREFIXES: Record<string, string[]> = {
   yamnet: ["/yamnet/"],
+  clap: ["/clap/"],
   tm: ["/tm/"],
   music: ["/music/"],
   speech: ["/speech/"],

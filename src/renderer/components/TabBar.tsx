@@ -1,4 +1,4 @@
-export type TabId = "yamnet" | "tm" | "music" | "speech";
+export type TabId = "yamnet" | "clap" | "tm" | "music" | "speech";
 
 interface Tab {
   id: TabId;
@@ -7,6 +7,7 @@ interface Tab {
 
 const TABS: Tab[] = [
   { id: "yamnet", label: "YAMNet" },
+  { id: "clap", label: "CLAP" },
   { id: "tm", label: "Teachable Machine" },
   { id: "music", label: "Music Info" },
   { id: "speech", label: "Speech" },

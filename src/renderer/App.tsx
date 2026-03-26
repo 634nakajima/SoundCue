@@ -5,6 +5,7 @@ import { useYamnet } from "./hooks/useYamnet";
 import { useTeachableMachine } from "./hooks/useTeachableMachine";
 import { useMusicInfo } from "./hooks/useMusicInfo";
 import { useSpeechRecognition } from "./hooks/useSpeechRecognition";
+import { useClap } from "./hooks/useClap";
 
 import TabBar, { type TabId } from "./components/TabBar";
 import AudioInputSelector from "./components/AudioInputSelector";
@@ -16,6 +17,7 @@ import YamnetTab from "./components/tabs/YamnetTab";
 import TeachableMachineTab from "./components/tabs/TeachableMachineTab";
 import MusicInfoTab from "./components/tabs/MusicInfoTab";
 import SpeechTab from "./components/tabs/SpeechTab";
+import ClapTab from "./components/tabs/ClapTab";
 
 interface OscMessage {
   address: string;
@@ -37,6 +39,7 @@ export default function App() {
 
   // Analysis hooks (only active when their tab is selected)
   const yamnet = useYamnet(audioContext, stream, activeTab === "yamnet");
+  const clap = useClap(audioContext, stream, activeTab === "clap");
   const tm = useTeachableMachine(audioContext, stream, activeTab === "tm");
   const musicInfo = useMusicInfo(analyserNode, audioContext, activeTab === "music");
   const speech = useSpeechRecognition(audioContext, stream, activeTab === "speech");
@@ -83,6 +86,23 @@ export default function App() {
               loading={yamnet.loading}
               error={yamnet.error}
               timeDomainData={timeDomainData}
+            />
+          )}
+          {activeTab === "clap" && (
+            <ClapTab
+              results={clap.results}
+              labels={clap.labels}
+              isRunning={clap.isRunning}
+              ready={clap.ready}
+              loading={clap.loading}
+              error={clap.error}
+              downloadProgress={clap.downloadProgress}
+              statusMessage={clap.statusMessage}
+              chunkSeconds={clap.chunkSeconds}
+              onSetLabels={clap.setLabels}
+              onStart={clap.start}
+              onStop={clap.stop}
+              onSetChunkSeconds={clap.setChunkSeconds}
             />
           )}
           {activeTab === "tm" && (

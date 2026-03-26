@@ -31,6 +31,15 @@ interface Window {
     whisperStatus: () => Promise<{ ready: boolean; loading: boolean; model: string }>;
     onWhisperProgress: (callback: (progress: { status: string; progress?: number; file?: string }) => void) => void;
     removeWhisperProgressListener: () => void;
+    clapInit: () => Promise<{ success: boolean; error?: string }>;
+    clapClassify: (audioData: number[], labels: string[]) => Promise<{
+      success: boolean;
+      results?: Array<{ label: string; score: number }>;
+      error?: string;
+    }>;
+    clapStatus: () => Promise<{ ready: boolean; loading: boolean }>;
+    onClapProgress: (callback: (progress: { status: string; progress?: number; file?: string }) => void) => void;
+    removeClapProgressListener: () => void;
     selectModelZip: () => Promise<string | null>;
   };
 }
