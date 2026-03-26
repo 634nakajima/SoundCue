@@ -1,0 +1,35 @@
+{
+  "name": "soundcue",
+  "version": "0.1.0",
+  "description": "Real-time audio analysis with OSC output — sound classification, music features, and speech recognition",
+  "main": "dist/main/index.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "build:mac": "electron-vite build && electron-builder --mac",
+    "build:win": "electron-vite build && electron-builder --win"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.2.0",
+    "autoprefixer": "^10.4.21",
+    "electron": "^35.0.1",
+    "electron-builder": "^26.0.12",
+    "electron-vite": "^3.1.0",
+    "postcss": "^8.5.4",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "^3.8.1",
+    "@tensorflow/tfjs": "^4.22.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  }
+}

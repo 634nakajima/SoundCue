@@ -1,0 +1,24 @@
+appId: com.soundcue.app
+productName: SoundCue
+directories:
+  output: release
+mac:
+  category: public.app-category.utilities
+  target:
+    - dmg
+    - zip
+  identity: null
+  forceCodeSigning: false
+  extendInfo:
+    NSMicrophoneUsageDescription: "This app needs microphone access for real-time audio analysis."
+win:
+  target:
+    - nsis
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+files:
+  - dist/**/*
+  - package.json
+  - node_modules/**/*
+asar: true

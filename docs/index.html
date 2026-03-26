@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SoundCue</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --surface2: #1e1e1e;
+      --border: #2a2a2a;
+      --text: #e8e8e8;
+      --text-dim: #888;
+      --accent: #60a5fa;
+      --accent2: #34d399;
+      --accent3: #a78bfa;
+      --accent4: #fbbf24;
+    }
+
+    body {
+      font-family: 'Noto Sans JP', 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.8;
+      overflow-x: hidden;
+    }
+
+    .lang-switch {
+      position: fixed; top: 1.5rem; right: 1.5rem; z-index: 100;
+      display: flex; border: 1px solid var(--border); border-radius: 6px;
+      overflow: hidden; background: var(--surface);
+    }
+    .lang-btn {
+      padding: 0.35rem 0.75rem; font-size: 0.75rem; font-weight: 500;
+      border: none; background: transparent; color: var(--text-dim); cursor: pointer; transition: all 0.2s;
+    }
+    .lang-btn.active { background: var(--accent); color: #fff; }
+    .lang-btn:hover:not(.active) { color: var(--text); }
+
+    [lang="en"] { display: none; }
+    body.en [lang="en"] { display: block; }
+    body.en [lang="ja"] { display: none; }
+    body.en span[lang="en"], span[lang="ja"] { display: inline; }
+    body.en span[lang="ja"] { display: none; }
+    span[lang="en"] { display: none; }
+
+    .hero {
+      min-height: 100vh; display: flex; flex-direction: column;
+      justify-content: center; align-items: center; text-align: center;
+      padding: 2rem;
+    }
+    .hero-badge {
+      display: inline-block; padding: 0.3rem 1rem; border-radius: 20px;
+      background: rgba(96,165,250,0.15); color: var(--accent); font-size: 0.85rem;
+      font-weight: 600; margin-bottom: 1.5rem; border: 1px solid rgba(96,165,250,0.3);
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 700;
+      line-height: 1.2; margin-bottom: 1rem;
+    }
+    .hero h1 em { font-style: normal; color: var(--accent); }
+    .hero p { font-size: 1.1rem; color: var(--text-dim); max-width: 650px; margin-bottom: 2rem; }
+    .hero-buttons { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+    .btn {
+      padding: 0.75rem 2rem; border-radius: 8px; font-size: 1rem; font-weight: 600;
+      text-decoration: none; transition: all 0.2s; border: none; cursor: pointer;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { filter: brightness(1.15); }
+    .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { border-color: var(--accent); }
+
+    section { padding: 5rem 2rem; max-width: 1000px; margin: 0 auto; }
+    section h2 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+    section h2 em { font-style: normal; color: var(--accent); }
+    section .subtitle { color: var(--text-dim); margin-bottom: 2.5rem; font-size: 1rem; }
+
+    .modes-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem; margin-top: 2rem;
+    }
+    .mode-card {
+      padding: 2rem; border-radius: 12px; background: var(--surface);
+      border: 1px solid var(--border); transition: border-color 0.2s;
+    }
+    .mode-card:hover { border-color: var(--accent); }
+    .mode-card .mode-icon { margin-bottom: 1rem; }
+    .mode-card .mode-icon svg { width: 36px; height: 36px; }
+    .mode-card h3 { font-size: 1.15rem; margin-bottom: 0.5rem; }
+    .mode-card .mode-tag {
+      display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px;
+      font-size: 0.7rem; font-weight: 600; margin-bottom: 0.75rem;
+    }
+    .tag-tf { background: rgba(96,165,250,0.15); color: var(--accent); }
+    .tag-web { background: rgba(52,211,153,0.15); color: var(--accent2); }
+    .tag-whisper { background: rgba(167,139,250,0.15); color: var(--accent3); }
+    .tag-custom { background: rgba(251,191,36,0.15); color: var(--accent4); }
+    .mode-card p { font-size: 0.9rem; color: var(--text-dim); }
+    .mode-card ul { font-size: 0.85rem; color: var(--text-dim); margin-top: 0.5rem; padding-left: 1.2rem; }
+    .mode-card li { margin-bottom: 0.25rem; }
+
+    .features {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem; margin-top: 2rem;
+    }
+    .feature {
+      padding: 1.5rem; border-radius: 12px; background: var(--surface);
+      border: 1px solid var(--border); transition: border-color 0.2s;
+    }
+    .feature:hover { border-color: var(--accent); }
+    .feature-icon { margin-bottom: 0.75rem; color: var(--accent); }
+    .feature-icon svg { width: 32px; height: 32px; }
+    .feature h3 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+    .feature p { font-size: 0.9rem; color: var(--text-dim); }
+
+    .usecases { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+    .usecase {
+      padding: 1.25rem; border-radius: 10px; background: var(--surface);
+      border: 1px solid var(--border); text-align: center;
+    }
+    .usecase-icon { margin-bottom: 0.5rem; color: var(--accent); }
+    .usecase-icon svg { width: 28px; height: 28px; }
+    .usecase h3 { font-size: 0.95rem; margin-bottom: 0.3rem; }
+    .usecase p { font-size: 0.8rem; color: var(--text-dim); }
+
+    .setup {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: 2rem; margin-top: 2rem;
+    }
+    .setup code {
+      display: block; background: var(--bg); padding: 1rem; border-radius: 8px;
+      font-family: 'SF Mono', monospace; font-size: 0.85rem; color: var(--accent2);
+      overflow-x: auto; margin: 0.75rem 0; white-space: pre;
+    }
+    .setup p { color: var(--text-dim); font-size: 0.9rem; margin-bottom: 0.5rem; }
+
+    .osc-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.85rem; }
+    .osc-table th { text-align: left; padding: 0.5rem; border-bottom: 1px solid var(--border); color: var(--text-dim); font-weight: 500; }
+    .osc-table td { padding: 0.5rem; border-bottom: 1px solid var(--border); }
+    .osc-table td:first-child { color: var(--accent2); font-family: 'SF Mono', monospace; font-size: 0.8rem; }
+
+    .tech-list {
+      display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.5rem; justify-content: center;
+    }
+    .tech-tag {
+      padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.8rem;
+      background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim);
+    }
+
+    footer {
+      text-align: center; padding: 3rem 2rem; color: var(--text-dim); font-size: 0.85rem;
+      border-top: 1px solid var(--border);
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<div class="lang-switch">
+  <button class="lang-btn active" onclick="setLang('ja')">JA</button>
+  <button class="lang-btn" onclick="setLang('en')">EN</button>
+</div>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-badge">Desktop App for macOS / Windows</div>
+  <h1 lang="ja"><em>SoundCue</em></h1>
+  <h1 lang="en"><em>SoundCue</em></h1>
+  <p lang="ja">
+    マイク入力をAIがリアルタイムに解析し、
+    音の特徴をOSCで外部アプリケーションに送信するデスクトップアプリ。
+    Pure Data、TouchDesigner、Max、Ableton等と連携して、
+    音声駆動のインタラクティブ作品を実現します。
+  </p>
+  <p lang="en">
+    A desktop app that analyzes microphone input with AI in real-time
+    and sends audio features to external applications via OSC.
+    Connect with Pure Data, TouchDesigner, Max, Ableton and more
+    for sound-driven interactive installations and performances.
+  </p>
+  <div class="hero-buttons">
+    <a class="btn btn-primary" href="https://github.com/affectiveinformationlab/SoundCue/releases">
+      <span lang="ja">ダウンロード</span>
+      <span lang="en">Download</span>
+    </a>
+    <a class="btn btn-secondary" href="https://github.com/affectiveinformationlab/SoundCue">GitHub</a>
+  </div>
+</div>
+
+<!-- Modes -->
+<section>
+  <h2 lang="ja"><em>Analysis Modes</em></h2>
+  <h2 lang="en"><em>Analysis Modes</em></h2>
+  <p class="subtitle" lang="ja">4つの音声解析モードをタブで切り替え</p>
+  <p class="subtitle" lang="en">Switch between 4 audio analysis modes via tabs</p>
+  <div class="modes-grid">
+    <div class="mode-card">
+      <div class="mode-icon" style="color:var(--accent)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg></div>
+      <h3>YAMNet</h3>
+      <span class="mode-tag tag-tf">TensorFlow.js</span>
+      <p lang="ja">521カテゴリの環境音分類。犬の鳴き声、楽器、車のクラクションなど幅広い音を検出。</p>
+      <p lang="en">521-category environmental sound classification. Detects dogs barking, instruments, car horns and more.</p>
+      <ul>
+        <li lang="ja">Google YAMNet (AudioSet)</li><li lang="en">Google YAMNet (AudioSet)</li>
+        <li lang="ja">Top-N クラス表示</li><li lang="en">Top-N class display</li>
+        <li lang="ja">信頼度バー</li><li lang="en">Confidence bars</li>
+      </ul>
+    </div>
+    <div class="mode-card">
+      <div class="mode-icon" style="color:var(--accent4)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/><circle cx="12" cy="10" r="3"/></svg></div>
+      <h3>Teachable Machine</h3>
+      <span class="mode-tag tag-custom">Custom Model</span>
+      <p lang="ja">Google Teachable Machineで学習したカスタム音声分類モデルを読み込んで推論。</p>
+      <p lang="en">Load and run custom audio classification models trained with Google Teachable Machine.</p>
+      <ul>
+        <li lang="ja">URL / ZIPからモデルロード</li><li lang="en">Load models from URL or ZIP</li>
+        <li lang="ja">カスタムクラス分類</li><li lang="en">Custom class classification</li>
+      </ul>
+    </div>
+    <div class="mode-card">
+      <div class="mode-icon" style="color:var(--accent2)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+      <h3>Music Info</h3>
+      <span class="mode-tag tag-web">Web Audio API</span>
+      <p lang="ja">リアルタイムのピッチ検出、RMS音量、スペクトル重心。波形・スペクトル表示付き。</p>
+      <p lang="en">Real-time pitch detection, RMS level, spectral centroid. With waveform and spectrum display.</p>
+      <ul>
+        <li lang="ja">ピッチ検出 + 音名表示</li><li lang="en">Pitch detection + note name</li>
+        <li lang="ja">波形・スペクトル可視化</li><li lang="en">Waveform & spectrum visualization</li>
+      </ul>
+    </div>
+    <div class="mode-card">
+      <div class="mode-icon" style="color:var(--accent3)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+      <h3>Speech</h3>
+      <span class="mode-tag tag-whisper">Whisper (Local)</span>
+      <p lang="ja">Whisperによるローカル音声認識。オフライン対応、多言語。モデルサイズ選択可。</p>
+      <p lang="en">Local speech recognition powered by Whisper. Offline, multilingual. Selectable model size.</p>
+      <ul>
+        <li lang="ja">tiny / small / medium 選択</li><li lang="en">tiny / small / medium selectable</li>
+        <li lang="ja">日本語・英語・他多言語</li><li lang="en">Japanese, English, and more</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section>
+  <h2 lang="ja"><em>Features</em></h2>
+  <h2 lang="en"><em>Features</em></h2>
+  <p class="subtitle" lang="ja">全モード共通の機能</p>
+  <p class="subtitle" lang="en">Features available across all modes</p>
+  <div class="features">
+    <div class="feature">
+      <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+      <h3 lang="ja">OSC出力</h3>
+      <h3 lang="en">OSC Output</h3>
+      <p lang="ja">全解析モードからOSCで外部アプリに送信。Pure Data、TouchDesigner、Max、Ableton等と連携。</p>
+      <p lang="en">All modes send analysis data via OSC. Works with Pure Data, TouchDesigner, Max, Ableton, etc.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 13V9"/><path d="M12 13V7"/><path d="M17 13v-2"/></svg></div>
+      <h3 lang="ja">OSCモニター</h3>
+      <h3 lang="en">OSC Monitor</h3>
+      <p lang="ja">送信中のOSCアドレスと値をリアルタイムに表示するダッシュボード。</p>
+      <p lang="en">Real-time dashboard showing active OSC addresses and their values.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg></div>
+      <h3 lang="ja">マイク入力</h3>
+      <h3 lang="en">Audio Input</h3>
+      <p lang="ja">複数のオーディオ入力デバイスに対応。レベルメーター常時表示。</p>
+      <p lang="en">Multiple audio input devices supported. Always-on level meter.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+      <h3 lang="ja">ローカル処理</h3>
+      <h3 lang="en">Local Processing</h3>
+      <p lang="ja">YAMNet、Music Info、Whisperは全てローカルで実行。インターネット接続不要（初回モデルDL除く）。</p>
+      <p lang="en">YAMNet, Music Info, and Whisper all run locally. No internet needed (except initial model download).</p>
+    </div>
+  </div>
+</section>
+
+<!-- Use Cases -->
+<section>
+  <h2 lang="ja"><em>Use Cases</em></h2>
+  <h2 lang="en"><em>Use Cases</em></h2>
+  <p class="subtitle" lang="ja">こんな用途に</p>
+  <p class="subtitle" lang="en">Example applications</p>
+  <div class="usecases">
+    <div class="usecase">
+      <div class="usecase-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+      <h3 lang="ja">サウンドアート</h3>
+      <h3 lang="en">Sound Art</h3>
+      <p lang="ja">環境音を分類して映像・照明を制御</p>
+      <p lang="en">Classify ambient sounds to control visuals and lighting</p>
+    </div>
+    <div class="usecase">
+      <div class="usecase-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+      <h3 lang="ja">研究</h3>
+      <h3 lang="en">Research</h3>
+      <p lang="ja">音響特徴量の抽出と外部ソフトへの送信</p>
+      <p lang="en">Extract audio features and send to external software</p>
+    </div>
+    <div class="usecase">
+      <div class="usecase-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg></div>
+      <h3 lang="ja">ライブパフォーマンス</h3>
+      <h3 lang="en">Live Performance</h3>
+      <p lang="ja">ピッチやRMSでPd/Abletonをリアルタイム制御</p>
+      <p lang="en">Control Pd/Ableton with pitch and RMS in real-time</p>
+    </div>
+    <div class="usecase">
+      <div class="usecase-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+      <h3 lang="ja">字幕生成</h3>
+      <h3 lang="en">Subtitling</h3>
+      <p lang="ja">Whisperで音声をテキスト化してOSCで送信</p>
+      <p lang="en">Transcribe speech with Whisper and send via OSC</p>
+    </div>
+  </div>
+</section>
+
+<!-- OSC Reference -->
+<section>
+  <h2 lang="ja"><em>OSC Addresses</em></h2>
+  <h2 lang="en"><em>OSC Addresses</em></h2>
+  <p class="subtitle" lang="ja">各モードで送信されるOSCアドレス一覧</p>
+  <p class="subtitle" lang="en">OSC addresses sent by each mode</p>
+  <table class="osc-table">
+    <tr><th>Address</th><th>Type</th><th><span lang="ja">説明</span><span lang="en">Description</span></th></tr>
+    <tr><td>/yamnet/class</td><td>string</td><td><span lang="ja">分類クラス名</span><span lang="en">Classification class name</span></td></tr>
+    <tr><td>/yamnet/confidence</td><td>float</td><td><span lang="ja">信頼度 (0-1)</span><span lang="en">Confidence (0-1)</span></td></tr>
+    <tr><td>/music/pitch</td><td>float</td><td><span lang="ja">ピッチ (Hz)</span><span lang="en">Pitch (Hz)</span></td></tr>
+    <tr><td>/music/note</td><td>string</td><td><span lang="ja">音名 (e.g. A4)</span><span lang="en">Note name (e.g. A4)</span></td></tr>
+    <tr><td>/music/rms</td><td>float</td><td><span lang="ja">RMS音量 (0-1)</span><span lang="en">RMS level (0-1)</span></td></tr>
+    <tr><td>/music/centroid</td><td>float</td><td><span lang="ja">スペクトル重心 (Hz)</span><span lang="en">Spectral centroid (Hz)</span></td></tr>
+    <tr><td>/speech/text</td><td>string</td><td><span lang="ja">認識テキスト</span><span lang="en">Recognized text</span></td></tr>
+    <tr><td>/tm/class</td><td>string</td><td><span lang="ja">分類クラス名</span><span lang="en">Classification class name</span></td></tr>
+  </table>
+</section>
+
+<!-- Getting Started -->
+<section>
+  <h2 lang="ja"><em>Getting Started</em></h2>
+  <h2 lang="en"><em>Getting Started</em></h2>
+  <div class="setup">
+    <p lang="ja"><strong>方法1:</strong> ビルド済みアプリをダウンロード</p>
+    <p lang="en"><strong>Option 1:</strong> Download pre-built app</p>
+    <p lang="ja"><a href="https://github.com/affectiveinformationlab/SoundCue/releases" style="color:var(--accent)">Releases</a> からダウンロードして起動するだけ。</p>
+    <p lang="en">Download from <a href="https://github.com/affectiveinformationlab/SoundCue/releases" style="color:var(--accent)">Releases</a> and launch.</p>
+
+    <p lang="ja" style="margin-top:1.5rem"><strong>方法2:</strong> ソースから実行</p>
+    <p lang="en" style="margin-top:1.5rem"><strong>Option 2:</strong> Run from source</p>
+    <code>git clone https://github.com/affectiveinformationlab/SoundCue.git
+cd SoundCue
+npm install
+npm run dev</code>
+  </div>
+
+  <div class="tech-list">
+    <span class="tech-tag">Electron</span>
+    <span class="tech-tag">React</span>
+    <span class="tech-tag">TypeScript</span>
+    <span class="tech-tag">TensorFlow.js</span>
+    <span class="tech-tag">Whisper</span>
+    <span class="tech-tag">Web Audio API</span>
+    <span class="tech-tag">Tailwind CSS</span>
+    <span class="tech-tag">OSC</span>
+  </div>
+</section>
+
+<footer>
+  <p>SoundCue &mdash; MIT License</p>
+  <p><a href="https://github.com/affectiveinformationlab/SoundCue">GitHub</a></p>
+</footer>
+
+<script>
+function setLang(lang) {
+  document.body.className = lang === 'en' ? 'en' : '';
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>
