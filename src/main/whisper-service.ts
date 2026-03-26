@@ -1,4 +1,6 @@
-import { pipeline, type AutomaticSpeechRecognitionPipeline } from "@huggingface/transformers";
+import { pipeline, env, type AutomaticSpeechRecognitionPipeline } from "@huggingface/transformers";
+import { app } from "electron";
+import { join } from "node:path";
 
 let whisperPipeline: AutomaticSpeechRecognitionPipeline | null = null;
 let loading = false;
@@ -15,6 +17,14 @@ export async function initWhisper(
   modelId = model;
 
   try {
+    // Configure cache directory for production builds
+    const cacheDir = join(app.getPath("userData"), "models");
+    env.cacheDir = cacheDir;
+    // Disable local model check to always try remote first
+    env.allowLocalModels = false;
+    console.log("[Whisper] Cache directory:", cacheDir);
+    console.log("[Whisper] Loading model:", model);
+
     whisperPipeline = await pipeline(
       "automatic-speech-recognition",
       model,
@@ -22,15 +32,18 @@ export async function initWhisper(
         dtype: "q4",          // quantized for speed
         device: "cpu",        // Use CPU (MPS not yet supported for whisper in transformers.js)
         progress_callback: onProgress
-          ? (p: any) => onProgress({
-              status: p.status || "loading",
-              progress: p.progress,
-              file: p.file,
-            })
+          ? (p: any) => {
+              console.log("[Whisper] Progress:", p.status, p.file, p.progress);
+              onProgress({
+                status: p.status || "loading",
+                progress: p.progress,
+                file: p.file,
+              });
+            }
           : undefined,
       }
     );
-    console.log("[Whisper] Model loaded:", model);
+    console.log("[Whisper] Model loaded successfully:", model);
   } catch (e) {
     console.error("[Whisper] Failed to load model:", e);
     throw e;
