@@ -11,7 +11,7 @@ export function useClap(
   active: boolean
 ) {
   const [results, setResults] = useState<ClapResult[]>([]);
-  const [labels, setLabels] = useState("clapping, music, speech, silence");
+  const [labels, setLabels] = useState("clapping, music, speech, noise");
   const [ready, setReady] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

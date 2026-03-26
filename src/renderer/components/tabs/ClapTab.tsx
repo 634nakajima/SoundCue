@@ -17,8 +17,8 @@ interface Props {
 }
 
 const PRESETS: Record<string, string> = {
-  "Environment": "clapping, laughter, footsteps, door closing, silence",
-  "Music": "singing, guitar, piano, drums, bass, silence",
+  "Environment": "clapping, laughter, footsteps, door closing, wind",
+  "Music": "singing, guitar, piano, drums, bass",
   "Nature": "birds chirping, rain, wind, thunder, water flowing",
   "Urban": "car horn, siren, construction, traffic, people talking",
 };
