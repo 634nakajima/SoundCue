@@ -148,7 +148,7 @@ export default function App() {
           onApply={handleApplyOsc}
         />
 
-        <OscMonitor messages={oscMessages} />
+        <OscMonitor messages={oscMessages} activeTab={activeTab} />
       </div>
     </div>
   );

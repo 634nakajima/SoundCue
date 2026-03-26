@@ -4,14 +4,24 @@ interface OscMessage {
   timestamp: number;
 }
 
+const TAB_PREFIXES: Record<string, string[]> = {
+  yamnet: ["/yamnet/"],
+  tm: ["/tm/"],
+  music: ["/music/"],
+  speech: ["/speech/"],
+};
+
 interface Props {
   messages: OscMessage[];
+  activeTab?: string;
 }
 
-export default function OscMonitor({ messages }: Props) {
+export default function OscMonitor({ messages, activeTab }: Props) {
   // Deduplicate by address (show latest value per address), sorted
   const latestByAddress = new Map<string, string>();
+  const prefixes = activeTab ? TAB_PREFIXES[activeTab] : undefined;
   for (const msg of messages) {
+    if (prefixes && !prefixes.some((p) => msg.address.startsWith(p))) continue;
     latestByAddress.set(msg.address, msg.value);
   }
 
