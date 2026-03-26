@@ -101,7 +101,7 @@ export default function SpeechTab({
             step={1}
             value={chunkSeconds ?? 5}
             onChange={(e) => onSetChunkSeconds?.(Number(e.target.value))}
-            className="w-20 accent-blue-500"
+            className="w-20 accent-blue-500 opacity-60"
           />
           <span className="text-xs text-gray-300 font-mono w-6 text-right">{chunkSeconds ?? 5}s</span>
         </div>
