@@ -119,11 +119,13 @@ export default function App() {
               modelLoading={speech.modelLoading}
               downloadProgress={speech.downloadProgress}
               modelSize={speech.modelSize}
+              chunkSeconds={speech.chunkSeconds}
               onSetLanguage={speech.setLanguage}
               onStart={speech.start}
               onStop={speech.stop}
               onClear={speech.clearTranscript}
               onChangeModelSize={speech.changeModelSize}
+              onSetChunkSeconds={speech.setChunkSeconds}
             />
           )}
         </div>

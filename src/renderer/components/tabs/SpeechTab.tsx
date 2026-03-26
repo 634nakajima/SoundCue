@@ -10,11 +10,13 @@ interface Props {
   modelLoading?: boolean;
   downloadProgress?: number;
   modelSize?: string;
+  chunkSeconds?: number;
   onSetLanguage: (lang: string) => void;
   onStart: () => void;
   onStop: () => void;
   onClear: () => void;
   onChangeModelSize?: (size: string) => void;
+  onSetChunkSeconds?: (sec: number) => void;
 }
 
 const LANGUAGES = [
@@ -45,6 +47,8 @@ export default function SpeechTab({
   onStop,
   onClear,
   onChangeModelSize,
+  chunkSeconds,
+  onSetChunkSeconds,
 }: Props) {
   return (
     <div className="flex flex-col h-full p-4 gap-4">
@@ -87,6 +91,20 @@ export default function SpeechTab({
           <option value="small">small (~250MB)</option>
           <option value="medium">medium (~800MB, accurate)</option>
         </select>
+
+        <div className="flex items-center gap-1.5">
+          <label className="text-xs text-gray-400 whitespace-nowrap">Interval</label>
+          <input
+            type="range"
+            min={2}
+            max={15}
+            step={1}
+            value={chunkSeconds ?? 5}
+            onChange={(e) => onSetChunkSeconds?.(Number(e.target.value))}
+            className="w-20 accent-blue-500"
+          />
+          <span className="text-xs text-gray-300 font-mono w-6 text-right">{chunkSeconds ?? 5}s</span>
+        </div>
 
         <button
           onClick={onClear}
@@ -143,7 +161,7 @@ export default function SpeechTab({
         {!transcript && !interimText && (
           <div className="text-gray-600 text-center py-8">
             {isListening
-              ? "Speak now... (transcribes every 5 seconds)"
+              ? `Speak now... (transcribes every ${chunkSeconds ?? 5} seconds)`
               : modelReady
               ? "Press Start to begin recognition"
               : "Press Start to load model and begin"}

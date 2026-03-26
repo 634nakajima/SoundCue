@@ -26,12 +26,18 @@ export function useSpeechRecognition(
   const [modelLoading, setModelLoading] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [modelSize, setModelSize] = useState("small");
+  const [chunkSeconds, setChunkSeconds] = useState(5);
 
   const processorRef = useRef<ScriptProcessorNode | null>(null);
   const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
   const accumulatedRef = useRef<number[]>([]);
   const listeningRef = useRef(false);
-  const CHUNK_SECONDS = 5; // Transcribe every 5 seconds
+  const chunkSecondsRef = useRef(chunkSeconds);
+
+  // Keep ref in sync with state so onaudioprocess reads latest value
+  useEffect(() => {
+    chunkSecondsRef.current = chunkSeconds;
+  }, [chunkSeconds]);
 
   // Listen for model download progress
   useEffect(() => {
@@ -116,7 +122,7 @@ export function useSpeechRecognition(
       }
 
       // When we have enough audio, transcribe
-      const samplesNeeded = TARGET_RATE * CHUNK_SECONDS;
+      const samplesNeeded = TARGET_RATE * chunkSecondsRef.current;
       if (accumulatedRef.current.length >= samplesNeeded) {
         const chunk = accumulatedRef.current.slice(0, samplesNeeded);
         accumulatedRef.current = accumulatedRef.current.slice(samplesNeeded); // No overlap
@@ -244,5 +250,7 @@ export function useSpeechRecognition(
     changeModelSize,
     modelLoading,
     downloadProgress,
+    chunkSeconds,
+    setChunkSeconds,
   };
 }
