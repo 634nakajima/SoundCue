@@ -9,17 +9,19 @@
 | Tab | Engine | Description | OSC Addresses |
 |-----|--------|-------------|---------------|
 | **YAMNet** | TensorFlow.js | 521カテゴリ環境音分類（Google YAMNet） | `/yamnet/class` `/yamnet/confidence` `/yamnet/prob/{i}` |
+| **CLAP** | Transformers.js | ゼロショット音声分類（テキストラベルで自由に分類） | `/clap/class` `/clap/confidence` `/clap/prob/{i}` |
 | **Teachable Machine** | TensorFlow.js | カスタム音声分類モデル（URL or ZIP読込） | `/tm/class` `/tm/confidence` `/tm/prob/{i}` |
 | **Music Info** | Web Audio API | ピッチ検出・RMS・スペクトル重心・波形/スペクトル表示 | `/music/pitch` `/music/note` `/music/rms` `/music/centroid` |
 | **Speech** | Whisper (local) | リアルタイム音声認識（オフライン対応、多言語） | `/speech/text` `/speech/confidence` |
 
 ## Features
 
-- **4つの解析モード** をタブで切り替え
+- **5つの解析モード** をタブで切り替え
 - **OSC出力** — 解析結果をリアルタイムでUDP送信
 - **OSCモニター** — 送信中のアドレスと値をリアルタイム表示
 - **マイク選択** — 複数のオーディオ入力デバイスに対応
 - **オーディオレベルメーター** — 常時表示
+- **CLAPゼロショット分類** — テキストラベルで自由に音を分類、学習不要
 - **Whisper音声認識** — ローカル実行（tiny/small/medium選択可）、インターネット不要
 - **波形・スペクトル表示** — Music Infoタブでリアルタイム可視化
 
@@ -44,6 +46,13 @@ npm run dev
 | `/yamnet/class` | string | Top-1 分類クラス名 |
 | `/yamnet/confidence` | float | Top-1 信頼度 (0-1) |
 | `/yamnet/prob/{i}` | float | Top-N の各クラス信頼度 |
+
+### CLAP (Zero-Shot)
+| Address | Type | Description |
+|---------|------|-------------|
+| `/clap/class` | string | Top-1 分類クラス名 |
+| `/clap/confidence` | float | Top-1 信頼度 (0-1) |
+| `/clap/prob/{i}` | float | 各ラベル信頼度 |
 
 ### Teachable Machine
 | Address | Type | Description |
@@ -70,6 +79,7 @@ npm run dev
 
 - **Electron** + **React** + **TypeScript** + **electron-vite**
 - **TensorFlow.js** — YAMNet / Teachable Machine
+- **CLAP** (via @huggingface/transformers) — ゼロショット音声分類
 - **Whisper** (via @huggingface/transformers) — ローカル音声認識
 - **Web Audio API** — ピッチ検出、スペクトル解析
 - **Tailwind CSS** — UI

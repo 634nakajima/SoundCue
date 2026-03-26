@@ -204,8 +204,8 @@
 <section>
   <h2 lang="ja"><em>Analysis Modes</em></h2>
   <h2 lang="en"><em>Analysis Modes</em></h2>
-  <p class="subtitle" lang="ja">4つの音声解析モードをタブで切り替え</p>
-  <p class="subtitle" lang="en">Switch between 4 audio analysis modes via tabs</p>
+  <p class="subtitle" lang="ja">5つの音声解析モードをタブで切り替え</p>
+  <p class="subtitle" lang="en">Switch between 5 audio analysis modes via tabs</p>
   <div class="modes-grid">
     <div class="mode-card">
       <div class="mode-icon" style="color:var(--accent)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg></div>
@@ -217,6 +217,18 @@
         <li lang="ja">Google YAMNet (AudioSet)</li><li lang="en">Google YAMNet (AudioSet)</li>
         <li lang="ja">Top-N クラス表示</li><li lang="en">Top-N class display</li>
         <li lang="ja">信頼度バー</li><li lang="en">Confidence bars</li>
+      </ul>
+    </div>
+    <div class="mode-card">
+      <div class="mode-icon" style="color:var(--accent)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h4v7H4z"/><path d="M10 9h4v12h-4z"/><path d="M16 3h4v18h-4z"/><circle cx="12" cy="4" r="2"/></svg></div>
+      <h3>CLAP</h3>
+      <span class="mode-tag tag-tf">Zero-Shot AI</span>
+      <p lang="ja">テキストラベルで自由に音を分類。学習不要のゼロショット音声分類（CLAP: Contrastive Language-Audio Pretraining）。</p>
+      <p lang="en">Classify sounds with custom text labels. Zero-shot audio classification powered by CLAP (Contrastive Language-Audio Pretraining).</p>
+      <ul>
+        <li lang="ja">自由なテキストラベル設定</li><li lang="en">Custom text labels</li>
+        <li lang="ja">プリセット（環境音・楽器等）</li><li lang="en">Presets (environment, instruments, etc.)</li>
+        <li lang="ja">学習不要のゼロショット分類</li><li lang="en">No training needed</li>
       </ul>
     </div>
     <div class="mode-card">
@@ -287,8 +299,8 @@
       <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
       <h3 lang="ja">ローカル処理</h3>
       <h3 lang="en">Local Processing</h3>
-      <p lang="ja">YAMNet、Music Info、Whisperは全てローカルで実行。インターネット接続不要（初回モデルDL除く）。</p>
-      <p lang="en">YAMNet, Music Info, and Whisper all run locally. No internet needed (except initial model download).</p>
+      <p lang="ja">YAMNet、CLAP、Music Info、Whisperは全てローカルで実行。インターネット接続不要（初回モデルDL除く）。</p>
+      <p lang="en">YAMNet, CLAP, Music Info, and Whisper all run locally. No internet needed (except initial model download).</p>
     </div>
   </div>
 </section>
@@ -341,6 +353,8 @@
     <tr><th>Address</th><th>Type</th><th><span lang="ja">説明</span><span lang="en">Description</span></th></tr>
     <tr><td>/yamnet/class</td><td>string</td><td><span lang="ja">分類クラス名</span><span lang="en">Classification class name</span></td></tr>
     <tr><td>/yamnet/confidence</td><td>float</td><td><span lang="ja">信頼度 (0-1)</span><span lang="en">Confidence (0-1)</span></td></tr>
+    <tr><td>/clap/class</td><td>string</td><td><span lang="ja">ゼロショット分類クラス名</span><span lang="en">Zero-shot classification class</span></td></tr>
+    <tr><td>/clap/confidence</td><td>float</td><td><span lang="ja">信頼度 (0-1)</span><span lang="en">Confidence (0-1)</span></td></tr>
     <tr><td>/music/pitch</td><td>float</td><td><span lang="ja">ピッチ (Hz)</span><span lang="en">Pitch (Hz)</span></td></tr>
     <tr><td>/music/note</td><td>string</td><td><span lang="ja">音名 (e.g. A4)</span><span lang="en">Note name (e.g. A4)</span></td></tr>
     <tr><td>/music/rms</td><td>float</td><td><span lang="ja">RMS音量 (0-1)</span><span lang="en">RMS level (0-1)</span></td></tr>
@@ -373,6 +387,7 @@ npm run dev</code>
     <span class="tech-tag">React</span>
     <span class="tech-tag">TypeScript</span>
     <span class="tech-tag">TensorFlow.js</span>
+    <span class="tech-tag">CLAP</span>
     <span class="tech-tag">Whisper</span>
     <span class="tech-tag">Web Audio API</span>
     <span class="tech-tag">Tailwind CSS</span>
