@@ -137,6 +137,7 @@ export function useClap(
         }
         const rms = Math.sqrt(sumSq / chunk.length);
         if (rms < 0.005) {
+          setResults([]);
           return;
         }
 
