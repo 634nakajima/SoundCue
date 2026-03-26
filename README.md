@@ -26,7 +26,7 @@
 ## Quick Start
 
 ```bash
-git clone https://github.com/affectiveinformationlab/SoundCue.git
+git clone https://github.com/634nakajima/SoundCue.git
 cd SoundCue
 npm install
 npm run dev
@@ -34,7 +34,7 @@ npm run dev
 
 ## Download
 
-[Releases](https://github.com/affectiveinformationlab/SoundCue/releases) からビルド済みアプリをダウンロードできます。
+[Releases](https://github.com/634nakajima/SoundCue/releases) からビルド済みアプリをダウンロードできます。
 
 ## OSC Address Reference
 
