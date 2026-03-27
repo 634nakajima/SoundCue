@@ -245,11 +245,12 @@
     <div class="mode-card">
       <div class="mode-icon" style="color:var(--accent2)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
       <h3>Music Info</h3>
-      <span class="mode-tag tag-web">Web Audio API</span>
-      <p lang="ja">リアルタイムのピッチ検出、RMS音量、スペクトル重心。波形・スペクトル表示付き。</p>
-      <p lang="en">Real-time pitch detection, RMS level, spectral centroid. With waveform and spectrum display.</p>
+      <span class="mode-tag tag-web">Web Audio + Meyda.js</span>
+      <p lang="ja">ピッチ・RMS・MFCC・Chroma等16種の音楽特徴量をリアルタイム抽出。チェックボックスでOSC送信を個別制御。</p>
+      <p lang="en">Real-time extraction of 16+ audio features including pitch, RMS, MFCC, Chroma. Checkbox control for OSC output per feature.</p>
       <ul>
-        <li lang="ja">ピッチ検出 + 音名表示</li><li lang="en">Pitch detection + note name</li>
+        <li lang="ja">Meyda.js による包括的特徴量</li><li lang="en">Comprehensive features via Meyda.js</li>
+        <li lang="ja">MFCC (13係数) / Chroma (12音)</li><li lang="en">MFCC (13 coeff.) / Chroma (12 pitch classes)</li>
         <li lang="ja">波形・スペクトル可視化</li><li lang="en">Waveform & spectrum visualization</li>
       </ul>
     </div>
@@ -359,6 +360,12 @@
     <tr><td>/music/note</td><td>string</td><td><span lang="ja">音名 (e.g. A4)</span><span lang="en">Note name (e.g. A4)</span></td></tr>
     <tr><td>/music/rms</td><td>float</td><td><span lang="ja">RMS音量 (0-1)</span><span lang="en">RMS level (0-1)</span></td></tr>
     <tr><td>/music/centroid</td><td>float</td><td><span lang="ja">スペクトル重心 (Hz)</span><span lang="en">Spectral centroid (Hz)</span></td></tr>
+    <tr><td>/music/loudness</td><td>float</td><td><span lang="ja">知覚的音量</span><span lang="en">Perceptual loudness</span></td></tr>
+    <tr><td>/music/zcr</td><td>float</td><td><span lang="ja">ゼロクロッシングレート</span><span lang="en">Zero crossing rate</span></td></tr>
+    <tr><td>/music/flatness</td><td>float</td><td><span lang="ja">スペクトル平坦度 (0-1)</span><span lang="en">Spectral flatness (0-1)</span></td></tr>
+    <tr><td>/music/energy</td><td>float</td><td><span lang="ja">エネルギー</span><span lang="en">Energy</span></td></tr>
+    <tr><td>/music/mfcc/0-12</td><td>float</td><td><span lang="ja">MFCC 13係数</span><span lang="en">MFCC 13 coefficients</span></td></tr>
+    <tr><td>/music/chroma/0-11</td><td>float</td><td><span lang="ja">クロマ 12音階</span><span lang="en">Chroma 12 pitch classes</span></td></tr>
     <tr><td>/speech/text</td><td>string</td><td><span lang="ja">認識テキスト</span><span lang="en">Recognized text</span></td></tr>
     <tr><td>/tm/class</td><td>string</td><td><span lang="ja">分類クラス名</span><span lang="en">Classification class name</span></td></tr>
   </table>
@@ -389,6 +396,7 @@ npm run dev</code>
     <span class="tech-tag">TensorFlow.js</span>
     <span class="tech-tag">CLAP</span>
     <span class="tech-tag">Whisper</span>
+    <span class="tech-tag">Meyda.js</span>
     <span class="tech-tag">Web Audio API</span>
     <span class="tech-tag">Tailwind CSS</span>
     <span class="tech-tag">OSC</span>
