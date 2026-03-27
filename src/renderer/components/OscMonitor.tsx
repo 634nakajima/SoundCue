@@ -30,7 +30,7 @@ export default function OscMonitor({ messages, activeTab }: Props) {
     <div className="flex-1 flex flex-col min-h-0">
       <label className="text-xs text-gray-400 mb-1">OSC Monitor</label>
       <div className="flex-1 bg-gray-900 rounded border border-gray-700 overflow-y-auto text-xs font-mono p-1.5 min-h-[100px]">
-        {Array.from(latestByAddress.entries()).sort((a, b) => a[0].localeCompare(b[0])).map(([address, value]) => (
+        {Array.from(latestByAddress.entries()).sort((a, b) => a[0].localeCompare(b[0], undefined, { numeric: true })).map(([address, value]) => (
           <div
             key={address}
             className="flex justify-between py-0.5 border-b border-gray-800 last:border-0"

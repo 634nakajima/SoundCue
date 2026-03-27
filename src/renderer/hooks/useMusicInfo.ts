@@ -199,8 +199,8 @@ export function useMusicInfo(
 
     }
 
-    // ~30fps (33ms interval) instead of 60fps rAF
-    intervalRef.current = setInterval(tick, 33);
+    // ~20fps (50ms interval)
+    intervalRef.current = setInterval(tick, 50);
 
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
