@@ -37,20 +37,38 @@ const FEATURE_REFERENCE: Record<string, { name: string; osc: string; desc_ja: st
 const ALL_FEATURE_KEYS = ["pitch", "note", "rms", "centroid", ...MEYDA_SCALAR_FEATURES, "mfcc", "chroma"];
 
 // Normalize a value to 0-1 range for display bars
+// Ranges are based on typical Meyda output for 44.1kHz, FFT 4096
 function normalizeValue(key: string, value: number): number {
   switch (key) {
-    case "rms": return Math.min(1, value * 2);
+    case "rms": return Math.min(1, value / 0.5);
     case "spectralFlatness": return Math.min(1, value);
     case "perceptualSpread": return Math.min(1, value);
-    case "centroid":
-    case "spectralRolloff": return Math.min(1, value / 10000);
-    case "loudness": return Math.min(1, value / 30);
-    case "zcr": return Math.min(1, value / 200);
-    case "spectralSpread": return Math.min(1, value / 5000);
-    case "energy": return Math.min(1, value * 5);
-    case "perceptualSharpness": return Math.min(1, value / 3);
-    default: return Math.min(1, Math.abs(value) / 10);
+    case "centroid": return Math.min(1, value / 8000);
+    case "spectralRolloff": return Math.min(1, value / 15000);
+    case "loudness": return Math.min(1, value / 100);
+    case "zcr": return Math.min(1, value / 500);
+    case "spectralSpread": return Math.min(1, value / 8000);
+    case "energy": return Math.min(1, value / 0.5);
+    case "perceptualSharpness": return Math.min(1, value / 10);
+    case "spectralKurtosis": return Math.min(1, Math.abs(value) / 100);
+    case "spectralSkewness": return Math.min(1, Math.abs(value) / 50);
+    default: return Math.min(1, Math.abs(value) / 50);
   }
+}
+
+// Normalize chroma: relative to max in frame so bars show relative differences
+function normalizeChroma(chroma: number[]): number[] {
+  const max = Math.max(...chroma, 1e-10);
+  return chroma.map((v) => v / max);
+}
+
+// Normalize MFCC: first coefficient is much larger, normalize each independently
+function normalizeMfcc(mfcc: number[]): number[] {
+  return mfcc.map((v, i) => {
+    // Coefficient 0 is energy-like (range ~-50 to 50), others are smaller (~-20 to 20)
+    const range = i === 0 ? 100 : 40;
+    return Math.min(1, Math.max(0, (v + range / 2) / range));
+  });
 }
 
 function getBarColor(key: string): string {
@@ -135,8 +153,7 @@ export default function MusicInfoTab({
           <span className="text-xs text-gray-400">MFCC (13 coefficients)</span>
         </div>
         <div className="flex items-end gap-1" style={{ height: "96px" }}>
-          {info.mfcc.map((v, i) => {
-            const normalized = Math.min(1, Math.max(0, (v + 20) / 40));
+          {normalizeMfcc(info.mfcc).map((normalized, i) => {
             return (
               <div key={i} className="flex-1 flex flex-col items-center h-full">
                 <div className="w-full bg-gray-700 rounded-sm relative flex-1">
@@ -164,12 +181,12 @@ export default function MusicInfoTab({
           <span className="text-xs text-gray-400">Chroma (12 pitch classes)</span>
         </div>
         <div className="flex items-end gap-1" style={{ height: "96px" }}>
-          {info.chroma.map((v, i) => (
+          {normalizeChroma(info.chroma).map((v, i) => (
             <div key={i} className="flex-1 flex flex-col items-center h-full">
               <div className="w-full bg-gray-700 rounded-sm relative flex-1">
                 <div
                   className="absolute bottom-0 w-full bg-teal-500 rounded-sm transition-all duration-75"
-                  style={{ height: `${Math.min(1, v) * 100}%` }}
+                  style={{ height: `${v * 100}%` }}
                 />
               </div>
               <span className="text-[8px] text-gray-600 mt-0.5">{CHROMA_LABELS[i]}</span>
