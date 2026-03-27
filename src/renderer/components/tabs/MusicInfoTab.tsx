@@ -95,7 +95,7 @@ export default function MusicInfoTab({
         <span className="text-xs text-gray-500">Music Features</span>
         <button
           onClick={() => setShowRef(true)}
-          className="text-xs text-blue-400 hover:text-blue-300 underline"
+          className="text-xs px-3 py-1 rounded bg-gray-700 hover:bg-gray-600 text-gray-300 border border-gray-600 transition-colors"
         >
           Feature Reference
         </button>
