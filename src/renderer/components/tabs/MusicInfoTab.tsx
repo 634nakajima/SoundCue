@@ -120,41 +120,47 @@ export default function MusicInfoTab({
         </div>
       </div>
 
-      {/* Scalar features grid */}
-      <div className="space-y-1">
-        {/* Core features */}
-        <FeatureRow featureKey="rms" label="RMS Level" value={info.rms} format={(v) => v.toFixed(3)} enabled={enabledFeatures.has("rms")} onToggle={onToggleFeature} />
-        <FeatureRow featureKey="centroid" label="Spectral Centroid" value={info.centroid} format={(v) => `${v.toFixed(0)} Hz`} enabled={enabledFeatures.has("centroid")} onToggle={onToggleFeature} />
+      {/* Feature checkboxes (compact toggle list) */}
+      <div className="bg-gray-800/50 rounded-lg p-3">
+        <div className="text-xs text-gray-500 mb-2">OSC Features (check to enable + display)</div>
+        <div className="flex flex-wrap gap-x-3 gap-y-1">
+          {["rms", "centroid", ...MEYDA_SCALAR_FEATURES, "mfcc", "chroma"].map((key) => (
+            <label key={key} className="flex items-center gap-1 text-xs text-gray-400 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={enabledFeatures.has(key)}
+                onChange={() => onToggleFeature(key)}
+                className="accent-blue-500"
+              />
+              {FEATURE_REFERENCE[key]?.name || key}
+            </label>
+          ))}
+        </div>
+      </div>
 
-        {/* Meyda features */}
-        <div className="text-xs text-gray-600 mt-2 mb-1">Meyda Features</div>
-        {(MEYDA_SCALAR_FEATURES as readonly MeydaScalarFeature[]).map((key) => (
+      {/* Active scalar features - only render checked ones */}
+      {(["rms", "centroid", ...MEYDA_SCALAR_FEATURES] as string[])
+        .filter((key) => enabledFeatures.has(key))
+        .map((key) => (
           <FeatureRow
             key={key}
             featureKey={key}
             label={FEATURE_REFERENCE[key]?.name || key}
-            value={info[key]}
-            format={(v) => v.toFixed(3)}
-            enabled={enabledFeatures.has(key)}
+            value={info[key as keyof MusicInfo] as number}
+            format={key === "centroid" || key === "spectralRolloff" ? (v: number) => `${v.toFixed(0)} Hz` : (v: number) => v.toFixed(3)}
+            enabled={true}
             onToggle={onToggleFeature}
+            hideCheckbox
           />
-        ))}
-      </div>
+        ))
+      }
 
-      {/* MFCC */}
-      <div className="bg-gray-800/50 rounded-lg p-3">
-        <div className="flex items-center gap-2 mb-2">
-          <input
-            type="checkbox"
-            checked={enabledFeatures.has("mfcc")}
-            onChange={() => onToggleFeature("mfcc")}
-            className="accent-blue-500"
-          />
+      {/* MFCC - only render when checked */}
+      {enabledFeatures.has("mfcc") && (
+        <div className="bg-gray-800/50 rounded-lg p-3">
           <span className="text-xs text-gray-400">MFCC (13 coefficients)</span>
-        </div>
-        <div className="flex items-end gap-1" style={{ height: "96px" }}>
-          {normalizeMfcc(info.mfcc).map((normalized, i) => {
-            return (
+          <div className="flex items-end gap-1 mt-2" style={{ height: "96px" }}>
+            {normalizeMfcc(info.mfcc).map((normalized, i) => (
               <div key={i} className="flex-1 flex flex-col items-center h-full">
                 <div className="w-full bg-gray-700 rounded-sm relative flex-1">
                   <div
@@ -164,36 +170,30 @@ export default function MusicInfoTab({
                 </div>
                 <span className="text-[8px] text-gray-600 mt-0.5">{i}</span>
               </div>
-            );
-          })}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Chroma */}
-      <div className="bg-gray-800/50 rounded-lg p-3">
-        <div className="flex items-center gap-2 mb-2">
-          <input
-            type="checkbox"
-            checked={enabledFeatures.has("chroma")}
-            onChange={() => onToggleFeature("chroma")}
-            className="accent-blue-500"
-          />
+      {/* Chroma - only render when checked */}
+      {enabledFeatures.has("chroma") && (
+        <div className="bg-gray-800/50 rounded-lg p-3">
           <span className="text-xs text-gray-400">Chroma (12 pitch classes)</span>
-        </div>
-        <div className="flex items-end gap-1" style={{ height: "96px" }}>
-          {normalizeChroma(info.chroma).map((v, i) => (
-            <div key={i} className="flex-1 flex flex-col items-center h-full">
-              <div className="w-full bg-gray-700 rounded-sm relative flex-1">
-                <div
-                  className="absolute bottom-0 w-full bg-teal-500 rounded-sm transition-all duration-75"
-                  style={{ height: `${v * 100}%` }}
-                />
+          <div className="flex items-end gap-1 mt-2" style={{ height: "96px" }}>
+            {normalizeChroma(info.chroma).map((v, i) => (
+              <div key={i} className="flex-1 flex flex-col items-center h-full">
+                <div className="w-full bg-gray-700 rounded-sm relative flex-1">
+                  <div
+                    className="absolute bottom-0 w-full bg-teal-500 rounded-sm transition-all duration-75"
+                    style={{ height: `${v * 100}%` }}
+                  />
+                </div>
+                <span className="text-[8px] text-gray-600 mt-0.5">{CHROMA_LABELS[i]}</span>
               </div>
-              <span className="text-[8px] text-gray-600 mt-0.5">{CHROMA_LABELS[i]}</span>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Waveform */}
       <div>
@@ -246,7 +246,7 @@ export default function MusicInfoTab({
   );
 }
 
-// Individual feature row with checkbox, bar, and value
+// Individual feature row with bar and value (no checkbox — managed in toggle list)
 function FeatureRow({
   featureKey,
   label,
@@ -254,6 +254,7 @@ function FeatureRow({
   format,
   enabled,
   onToggle,
+  hideCheckbox,
 }: {
   featureKey: string;
   label: string;
@@ -261,18 +262,21 @@ function FeatureRow({
   format: (v: number) => string;
   enabled: boolean;
   onToggle: (key: string) => void;
+  hideCheckbox?: boolean;
 }) {
   const barWidth = normalizeValue(featureKey, value);
   const color = getBarColor(featureKey);
 
   return (
     <div className="flex items-center gap-2 h-6">
-      <input
-        type="checkbox"
-        checked={enabled}
-        onChange={() => onToggle(featureKey)}
-        className="accent-blue-500 shrink-0"
-      />
+      {!hideCheckbox && (
+        <input
+          type="checkbox"
+          checked={enabled}
+          onChange={() => onToggle(featureKey)}
+          className="accent-blue-500 shrink-0"
+        />
+      )}
       <span className="text-xs text-gray-400 w-36 truncate shrink-0">{label}</span>
       <div className="flex-1 h-2 bg-gray-700 rounded-full overflow-hidden">
         <div
