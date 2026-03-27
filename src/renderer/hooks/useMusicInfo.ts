@@ -84,11 +84,11 @@ export function useMusicInfo(
   enabledFeatures: Set<string> = DEFAULT_ENABLED_FEATURES
 ) {
   const [info, setInfo] = useState<MusicInfo>(INITIAL_INFO);
-  const rafRef = useRef(0);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     if (!analyserNode || !audioContext || !active) {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if (intervalRef.current) clearInterval(intervalRef.current);
       return;
     }
 
@@ -197,13 +197,13 @@ export function useMusicInfo(
         }
       }
 
-      rafRef.current = requestAnimationFrame(tick);
     }
 
-    rafRef.current = requestAnimationFrame(tick);
+    // ~30fps (33ms interval) instead of 60fps rAF
+    intervalRef.current = setInterval(tick, 33);
 
     return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, [analyserNode, audioContext, active, enabledFeatures]);
 
