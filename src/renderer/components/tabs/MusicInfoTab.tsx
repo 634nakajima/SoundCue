@@ -134,12 +134,12 @@ export default function MusicInfoTab({
           />
           <span className="text-xs text-gray-400">MFCC (13 coefficients)</span>
         </div>
-        <div className="flex items-end gap-px h-12">
+        <div className="flex items-end gap-px h-24">
           {info.mfcc.map((v, i) => {
             const normalized = Math.min(1, Math.max(0, (v + 20) / 40));
             return (
               <div key={i} className="flex-1 flex flex-col items-center">
-                <div className="w-full bg-gray-700 rounded-sm relative" style={{ height: "48px" }}>
+                <div className="w-full bg-gray-700 rounded-sm relative" style={{ height: "96px" }}>
                   <div
                     className="absolute bottom-0 w-full bg-orange-500 rounded-sm transition-all duration-75"
                     style={{ height: `${normalized * 100}%` }}
@@ -163,10 +163,10 @@ export default function MusicInfoTab({
           />
           <span className="text-xs text-gray-400">Chroma (12 pitch classes)</span>
         </div>
-        <div className="flex items-end gap-px h-12">
+        <div className="flex items-end gap-px h-24">
           {info.chroma.map((v, i) => (
             <div key={i} className="flex-1 flex flex-col items-center">
-              <div className="w-full bg-gray-700 rounded-sm relative" style={{ height: "48px" }}>
+              <div className="w-full bg-gray-700 rounded-sm relative" style={{ height: "96px" }}>
                 <div
                   className="absolute bottom-0 w-full bg-teal-500 rounded-sm transition-all duration-75"
                   style={{ height: `${Math.min(1, v) * 100}%` }}
