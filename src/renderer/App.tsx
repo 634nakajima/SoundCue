@@ -1,9 +1,9 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { useAudioInput } from "./hooks/useAudioInput";
 import { useAudioAnalyser } from "./hooks/useAudioAnalyser";
 import { useYamnet } from "./hooks/useYamnet";
 import { useTeachableMachine } from "./hooks/useTeachableMachine";
-import { useMusicInfo } from "./hooks/useMusicInfo";
+import { useMusicInfo, DEFAULT_ENABLED_FEATURES } from "./hooks/useMusicInfo";
 import { useSpeechRecognition } from "./hooks/useSpeechRecognition";
 import { useClap } from "./hooks/useClap";
 
@@ -31,6 +31,21 @@ export default function App() {
   const [sendPort, setSendPort] = useState(8000);
   const [receivePort, setReceivePort] = useState(9000);
   const [oscMessages, setOscMessages] = useState<OscMessage[]>([]);
+  const [musicEnabledFeatures, setMusicEnabledFeatures] = useState<Set<string>>(
+    () => new Set(DEFAULT_ENABLED_FEATURES)
+  );
+
+  const handleToggleMusicFeature = useCallback((key: string) => {
+    setMusicEnabledFeatures((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }, []);
+
+  // Memoize to avoid re-creating on every render
+  const stableMusicFeatures = useMemo(() => musicEnabledFeatures, [musicEnabledFeatures]);
 
   // Audio input
   const { devices, activeDeviceId, stream, startAudio } = useAudioInput();
@@ -41,7 +56,7 @@ export default function App() {
   const yamnet = useYamnet(audioContext, stream, activeTab === "yamnet");
   const clap = useClap(audioContext, stream, activeTab === "clap");
   const tm = useTeachableMachine(audioContext, stream, activeTab === "tm");
-  const musicInfo = useMusicInfo(analyserNode, audioContext, activeTab === "music");
+  const musicInfo = useMusicInfo(analyserNode, audioContext, activeTab === "music", stableMusicFeatures);
   const speech = useSpeechRecognition(audioContext, stream, activeTab === "speech");
 
   // Track OSC messages for monitor via main process feedback
@@ -118,10 +133,9 @@ export default function App() {
           )}
           {activeTab === "music" && (
             <MusicInfoTab
-              pitch={musicInfo.pitch}
-              noteName={musicInfo.noteName}
-              rms={musicInfo.rms}
-              centroid={musicInfo.centroid}
+              info={musicInfo}
+              enabledFeatures={stableMusicFeatures}
+              onToggleFeature={handleToggleMusicFeature}
               timeDomainData={timeDomainData}
               frequencyData={frequencyData}
             />
