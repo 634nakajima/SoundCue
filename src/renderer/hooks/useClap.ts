@@ -191,13 +191,6 @@ export function useClap(
     accumulatedRef.current = [];
   }, [ready]);
 
-  // Stop when tab becomes inactive
-  useEffect(() => {
-    if (!active && isRunning) {
-      stop();
-    }
-  }, [active, isRunning, stop]);
-
   useEffect(() => {
     return () => {
       runningRef.current = false;

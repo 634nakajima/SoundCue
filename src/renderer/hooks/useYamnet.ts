@@ -55,7 +55,7 @@ export function useYamnet(
 
   // Audio capture + classification loop
   useEffect(() => {
-    if (!active || !ready || !audioContext || !stream || !modelRef.current) return;
+    if (!ready || !audioContext || !stream || !modelRef.current) return;
 
     const model = modelRef.current;
     const sourceRate = audioContext.sampleRate;
@@ -130,7 +130,7 @@ export function useYamnet(
       processor.disconnect();
       source.disconnect();
     };
-  }, [active, ready, audioContext, stream, topN]);
+  }, [ready, audioContext, stream, topN]);
 
   return { topClasses, ready, loading, error };
 }
