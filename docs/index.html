@@ -67,6 +67,7 @@
     .hero h1 em { font-style: normal; color: var(--accent); }
     .hero p { font-size: 1.1rem; color: var(--text-dim); max-width: 650px; margin-bottom: 2rem; }
     .hero-buttons { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+    .macos-note { font-size: 0.85rem; color: var(--text-dim); margin-top: 1rem; max-width: 650px; }
     .btn {
       padding: 0.75rem 2rem; border-radius: 8px; font-size: 1rem; font-weight: 600;
       text-decoration: none; transition: all 0.2s; border: none; cursor: pointer;
@@ -198,6 +199,12 @@
     </a>
     <a class="btn btn-secondary" href="https://github.com/634nakajima/SoundCue">GitHub</a>
   </div>
+  <p class="macos-note" lang="ja">
+    ⚠️ macOSで「開けません」と表示される場合は、アプリを<strong>右クリック→開く</strong>するか、ターミナルで <code>xattr -cr /Applications/SoundCue.app</code> を実行してください。
+  </p>
+  <p class="macos-note" lang="en">
+    ⚠️ On macOS, if you see "cannot be opened", right-click the app and choose <strong>Open</strong>, or run <code>xattr -cr /Applications/SoundCue.app</code> in Terminal.
+  </p>
 </div>
 
 <!-- Modes -->
