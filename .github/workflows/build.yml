@@ -25,14 +25,18 @@ jobs:
         run: npm run build:mac
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+
+      - name: Create zip
+        run: |
+          APP_DIR=$(ls -d release/mac*unpacked 2>/dev/null | head -1)
+          zip -r release/SoundCue-mac.zip "$APP_DIR/SoundCue.app"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: mac-build
-          path: |
-            release/*.dmg
-            release/*.zip
+          path: release/SoundCue-mac.zip
 
   build-win:
     runs-on: windows-latest
