@@ -54,7 +54,7 @@ export function useTeachableMachine(
 
   // Classification loop
   useEffect(() => {
-    if (!active || !ready || !audioContext || !stream || !modelRef.current) return;
+    if (!ready || !audioContext || !stream || !modelRef.current) return;
 
     const model = modelRef.current;
     const sourceRate = audioContext.sampleRate;
@@ -138,7 +138,7 @@ export function useTeachableMachine(
       source.disconnect();
       processorRef.current = null;
     };
-  }, [active, ready, audioContext, stream, labels]);
+  }, [ready, audioContext, stream, labels]);
 
   return { classes, labels, ready, loading, error, loadModel, modelUrl };
 }

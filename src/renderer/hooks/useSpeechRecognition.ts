@@ -204,13 +204,6 @@ export function useSpeechRecognition(
     accumulatedRef.current = [];
   }, [modelReady]);
 
-  // Stop when tab becomes inactive
-  useEffect(() => {
-    if (!active && isListening) {
-      stop();
-    }
-  }, [active, isListening, stop]);
-
   useEffect(() => {
     return () => {
       listeningRef.current = false;

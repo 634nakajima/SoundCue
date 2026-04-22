@@ -87,7 +87,7 @@ export function useMusicInfo(
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    if (!analyserNode || !audioContext || !active) {
+    if (!analyserNode || !audioContext) {
       if (intervalRef.current) clearInterval(intervalRef.current);
       return;
     }
@@ -205,7 +205,7 @@ export function useMusicInfo(
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [analyserNode, audioContext, active, enabledFeatures]);
+  }, [analyserNode, audioContext, enabledFeatures]);
 
   return info;
 }
