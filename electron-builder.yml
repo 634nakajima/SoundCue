@@ -1,5 +1,6 @@
 appId: com.soundcue.app
 productName: SoundCue
+afterPack: scripts/afterPack.js
 directories:
   output: release
 mac:
