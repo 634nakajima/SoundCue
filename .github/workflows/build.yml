@@ -30,7 +30,9 @@ jobs:
       - name: Create zip
         run: |
           APP_DIR=$(ls -d release/mac*unpacked 2>/dev/null | head -1)
-          zip -r release/SoundCue-mac.zip "$APP_DIR/SoundCue.app"
+          echo "Found app dir: $APP_DIR"
+          ls -la "$APP_DIR"
+          ditto -c -k --sequesterRsrc --keepParent "$APP_DIR/SoundCue.app" release/SoundCue-mac.zip
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -86,5 +88,6 @@ jobs:
             artifacts/mac/*
             artifacts/win/*
           generate_release_notes: true
+          draft: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
