@@ -1,6 +1,6 @@
 {
   "name": "soundcue",
-  "version": "0.2.1",
+  "version": "0.2.4",
   "description": "Real-time audio analysis with OSC output — sound classification, music features, and speech recognition",
   "main": "dist/main/index.js",
   "scripts": {
