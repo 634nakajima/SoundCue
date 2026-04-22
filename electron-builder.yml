@@ -5,8 +5,7 @@ directories:
 mac:
   category: public.app-category.utilities
   target:
-    - dmg
-    - zip
+    - dir
   identity: null
   forceCodeSigning: false
   extendInfo:
