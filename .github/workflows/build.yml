@@ -9,45 +9,6 @@ permissions:
   contents: write
 
 jobs:
-  build-mac:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build
-        run: npm run build:mac
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CSC_IDENTITY_AUTO_DISCOVERY: false
-
-      - name: Remove code signatures
-        run: |
-          APP_DIR=$(ls -d release/mac*unpacked 2>/dev/null | head -1)
-          echo "Removing signatures from: $APP_DIR/SoundCue.app"
-          find "$APP_DIR/SoundCue.app" -type f \( -name "*.dylib" -o -name "*.so" -o -name "*.node" -o -name "Electron Framework" -o -name "SoundCue" \) | while read f; do
-            codesign --remove-signature "$f" 2>/dev/null || true
-          done
-          codesign --remove-signature "$APP_DIR/SoundCue.app/Contents/MacOS/SoundCue" 2>/dev/null || true
-          codesign --remove-signature "$APP_DIR/SoundCue.app" 2>/dev/null || true
-
-      - name: Create zip
-        run: |
-          APP_DIR=$(ls -d release/mac*unpacked 2>/dev/null | head -1)
-          ditto -c -k --sequesterRsrc --keepParent "$APP_DIR/SoundCue.app" release/SoundCue-mac.zip
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: mac-build
-          path: release/SoundCue-mac.zip
-
   build-win:
     runs-on: windows-latest
     steps:
@@ -72,16 +33,10 @@ jobs:
           path: release/*.exe
 
   release:
-    needs: [build-mac, build-win]
+    needs: [build-win]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Download Mac artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: mac-build
-          path: artifacts/mac
 
       - name: Download Win artifacts
         uses: actions/download-artifact@v4
@@ -92,9 +47,7 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            artifacts/mac/*
-            artifacts/win/*
+          files: artifacts/win/*
           generate_release_notes: true
           draft: false
         env:
