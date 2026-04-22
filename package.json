@@ -7,7 +7,7 @@
     "dev": "electron-vite dev",
     "build": "electron-vite build",
     "preview": "electron-vite preview",
-    "build:mac": "electron-vite build && electron-builder --mac",
+    "build:mac": "electron-vite build && electron-builder --mac && bash scripts/sign-mac.sh 'release/mac-arm64/SoundCue.app' && bash scripts/create-dmg.sh",
     "build:win": "electron-vite build && electron-builder --win"
   },
   "author": "",

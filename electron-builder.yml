@@ -1,12 +1,11 @@
 appId: com.soundcue.app
 productName: SoundCue
-afterPack: scripts/afterPack.js
 directories:
   output: release
 mac:
   category: public.app-category.utilities
   target:
-    - dmg
+    - dir
   identity: null
   forceCodeSigning: false
   extendInfo:
