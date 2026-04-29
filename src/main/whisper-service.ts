@@ -1,12 +1,22 @@
-import { pipeline, env, type AutomaticSpeechRecognitionPipeline } from "@huggingface/transformers";
 import { app } from "electron";
 import { join } from "node:path";
 
-let whisperPipeline: AutomaticSpeechRecognitionPipeline | null = null;
+let whisperPipeline: any | null = null;
 let loading = false;
 let modelId = "onnx-community/whisper-small";
 
 type ProgressCallback = (progress: { status: string; progress?: number; file?: string }) => void;
+
+function addOnnxRuntimeToPath(): void {
+  if (process.platform !== "win32") return;
+  const arch = process.arch === "arm64" ? "arm64" : "x64";
+  const onnxDir = app.isPackaged
+    ? join(process.resourcesPath, "app.asar.unpacked", "node_modules", "onnxruntime-node", "bin", "napi-v3", "win32", arch)
+    : join(__dirname, "../..", "node_modules", "onnxruntime-node", "bin", "napi-v3", "win32", arch);
+  if (!process.env.PATH?.includes(onnxDir)) {
+    process.env.PATH = `${onnxDir};${process.env.PATH ?? ""}`;
+  }
+}
 
 export async function initWhisper(
   model: string = "onnx-community/whisper-small",
@@ -17,10 +27,11 @@ export async function initWhisper(
   modelId = model;
 
   try {
-    // Configure cache directory for production builds
+    addOnnxRuntimeToPath();
+    const { pipeline, env } = await import("@huggingface/transformers");
+
     const cacheDir = join(app.getPath("userData"), "models");
     env.cacheDir = cacheDir;
-    // Disable local model check to always try remote first
     env.allowLocalModels = false;
     console.log("[Whisper] Cache directory:", cacheDir);
     console.log("[Whisper] Loading model:", model);

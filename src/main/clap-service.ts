@@ -1,17 +1,30 @@
-import { pipeline, env, type ZeroShotAudioClassificationPipeline } from "@huggingface/transformers";
 import { app } from "electron";
 import { join } from "node:path";
 
-let clapPipeline: ZeroShotAudioClassificationPipeline | null = null;
+let clapPipeline: any | null = null;
 let loading = false;
 
 type ProgressCallback = (progress: { status: string; progress?: number; file?: string }) => void;
+
+function addOnnxRuntimeToPath(): void {
+  if (process.platform !== "win32") return;
+  const arch = process.arch === "arm64" ? "arm64" : "x64";
+  const onnxDir = app.isPackaged
+    ? join(process.resourcesPath, "app.asar.unpacked", "node_modules", "onnxruntime-node", "bin", "napi-v3", "win32", arch)
+    : join(__dirname, "../..", "node_modules", "onnxruntime-node", "bin", "napi-v3", "win32", arch);
+  if (!process.env.PATH?.includes(onnxDir)) {
+    process.env.PATH = `${onnxDir};${process.env.PATH ?? ""}`;
+  }
+}
 
 export async function initClap(onProgress?: ProgressCallback): Promise<void> {
   if (clapPipeline || loading) return;
   loading = true;
 
   try {
+    addOnnxRuntimeToPath();
+    const { pipeline, env } = await import("@huggingface/transformers");
+
     const cacheDir = join(app.getPath("userData"), "models");
     env.cacheDir = cacheDir;
     env.allowLocalModels = false;
@@ -35,7 +48,7 @@ export async function initClap(onProgress?: ProgressCallback): Promise<void> {
             }
           : undefined,
       }
-    )) as ZeroShotAudioClassificationPipeline;
+    )) as any;
     console.log("[CLAP] Model loaded successfully");
   } catch (e) {
     console.error("[CLAP] Failed to load model:", e);

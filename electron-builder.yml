@@ -28,3 +28,5 @@ asarUnpack:
   - "**/node_modules/onnxruntime-web/**"
   - "**/*.wasm"
   - "**/*.onnx"
+  - "**/*.dll"
+  - "**/*.node"
