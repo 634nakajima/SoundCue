@@ -13,11 +13,6 @@ mac:
 win:
   target:
     - nsis
-  extraFiles:
-    - from: "node_modules/onnxruntime-node/bin/napi-v3/win32/x64"
-      to: "."
-      filter:
-        - "*.dll"
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
@@ -25,13 +20,4 @@ files:
   - dist/**/*
   - package.json
   - node_modules/**/*
-asar: true
-asarUnpack:
-  - "**/node_modules/@huggingface/**"
-  - "**/node_modules/onnxruntime-node/**"
-  - "**/node_modules/onnxruntime-common/**"
-  - "**/node_modules/onnxruntime-web/**"
-  - "**/*.wasm"
-  - "**/*.onnx"
-  - "**/*.dll"
-  - "**/*.node"
+asar: false
