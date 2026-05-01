@@ -9,9 +9,8 @@ type ProgressCallback = (progress: { status: string; progress?: number; file?: s
 function addOnnxRuntimeToPath(): void {
   if (process.platform !== "win32") return;
   const arch = process.arch === "arm64" ? "arm64" : "x64";
-  const onnxDir = app.isPackaged
-    ? join(process.resourcesPath, "app.asar.unpacked", "node_modules", "onnxruntime-node", "bin", "napi-v3", "win32", arch)
-    : join(__dirname, "../..", "node_modules", "onnxruntime-node", "bin", "napi-v3", "win32", arch);
+  // __dirname is dist/main/ in both dev and packaged (asar:false), so ../../node_modules always resolves correctly
+  const onnxDir = join(__dirname, "../..", "node_modules", "onnxruntime-node", "bin", "napi-v3", "win32", arch);
   if (!process.env.PATH?.includes(onnxDir)) {
     process.env.PATH = `${onnxDir};${process.env.PATH ?? ""}`;
   }

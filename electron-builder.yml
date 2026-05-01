@@ -13,6 +13,9 @@ mac:
 win:
   target:
     - nsis
+  extraFiles:
+    - from: "node_modules/onnxruntime-node/bin/napi-v3/win32/x64"
+      to: "."
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
