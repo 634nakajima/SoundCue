@@ -1,6 +1,7 @@
 import { app } from "electron";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { createRequire } from "node:module";
+import { pathToFileURL } from "node:url";
 
 const _require = createRequire(import.meta.url);
 
@@ -17,6 +18,12 @@ type ProgressCallback = (progress: { status: string; progress?: number; file?: s
  * We use _require() (CJS) instead of await import() (ESM) for transformers, because:
  *   - CJS version uses require('onnxruntime-node') → interceptable via _resolveFilename
  *   - ESM version uses static `import * from "onnxruntime-node"` → not interceptable
+ *
+ * Also pre-sets env.wasm.wasmPaths to a local file:// URL. Otherwise
+ * @huggingface/transformers' onnx init code sets it to
+ * https://cdn.jsdelivr.net/npm/@huggingface/transformers@X/dist/, and
+ * onnxruntime-web's `await import(url)` rejects HTTPS URLs in Node.js with
+ * ERR_UNSUPPORTED_ESM_URL_SCHEME → "no available backend found".
  */
 function patchOnnxRuntimeForWindows(): void {
   if (process.platform !== "win32") return;
@@ -38,10 +45,17 @@ function patchOnnxRuntimeForWindows(): void {
     return originalResolve(request, parent, isMain, options);
   };
 
-  // Disable multi-threading: Electron main lacks SharedArrayBuffer (no COOP/COEP headers)
   const ort = _require("onnxruntime-web") as any;
+  // Disable multi-threading: Electron main lacks SharedArrayBuffer (no COOP/COEP headers)
   ort.env.wasm.numThreads = 1;
-  console.log("[CLAP] Patched onnxruntime-node → onnxruntime-web (WASM)");
+
+  // Point WASM loader at the local onnxruntime-web/dist directory.
+  // Trailing slash matters: onnxruntime-web concatenates filenames to this prefix.
+  const onnxWebPkg = _require.resolve("onnxruntime-web/package.json");
+  const onnxWebDist = join(dirname(onnxWebPkg), "dist");
+  ort.env.wasm.wasmPaths = pathToFileURL(onnxWebDist).href + "/";
+
+  console.log("[CLAP] Patched onnxruntime-node → onnxruntime-web (WASM), wasmPaths:", ort.env.wasm.wasmPaths);
 }
 
 export async function initClap(onProgress?: ProgressCallback): Promise<void> {

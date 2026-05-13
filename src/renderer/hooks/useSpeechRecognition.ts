@@ -33,6 +33,7 @@ export function useSpeechRecognition(
   const accumulatedRef = useRef<number[]>([]);
   const listeningRef = useRef(false);
   const chunkSecondsRef = useRef(chunkSeconds);
+  const transcribingRef = useRef(false);
 
   // Keep ref in sync with state so onaudioprocess reads latest value
   useEffect(() => {
@@ -121,11 +122,21 @@ export function useSpeechRecognition(
         accumulatedRef.current.push(input[lo] * (1 - frac) + input[hi] * frac);
       }
 
-      // When we have enough audio, transcribe
+      // When we have enough audio, transcribe — but only if previous transcription finished.
+      // On Windows the WASM backend is much slower than native, so transcribes routinely
+      // outlast the chunk interval. Without this mutex, overlapping session.run() calls
+      // throw "Session already started" and recognition silently stalls.
       const samplesNeeded = TARGET_RATE * chunkSecondsRef.current;
       if (accumulatedRef.current.length >= samplesNeeded) {
+        if (transcribingRef.current) {
+          // Previous transcribe still running — drop the oldest chunk to keep the
+          // buffer bounded, then wait for it to complete before starting another.
+          accumulatedRef.current = accumulatedRef.current.slice(samplesNeeded);
+          return;
+        }
+
         const chunk = accumulatedRef.current.slice(0, samplesNeeded);
-        accumulatedRef.current = accumulatedRef.current.slice(samplesNeeded); // No overlap
+        accumulatedRef.current = accumulatedRef.current.slice(samplesNeeded);
 
         // Silence gate: skip if audio is too quiet (prevents Whisper hallucination)
         let sumSq = 0;
@@ -143,7 +154,9 @@ export function useSpeechRecognition(
         setInterimText("Transcribing...");
         const lang = WHISPER_LANGUAGES[language] || "ja";
 
+        transcribingRef.current = true;
         window.api.whisperTranscribe(chunk, lang).then((result) => {
+          transcribingRef.current = false;
           if (result.success && result.text) {
             const text = result.text.trim();
 
@@ -175,10 +188,15 @@ export function useSpeechRecognition(
             }
           } else if (result.error) {
             console.warn("[Whisper] Transcribe error:", result.error);
+            setStatusMessage(`Transcribe error: ${result.error}`);
           }
           if (listeningRef.current) {
             setInterimText("");
           }
+        }).catch((err) => {
+          transcribingRef.current = false;
+          console.error("[Whisper] IPC error:", err);
+          setStatusMessage(`Transcribe IPC error: ${err?.message ?? err}`);
         });
       }
     };
@@ -202,6 +220,9 @@ export function useSpeechRecognition(
       sourceRef.current = null;
     }
     accumulatedRef.current = [];
+    // Any in-flight transcribe will complete in the background; ensure the next
+    // Start doesn't see a stale mutex.
+    transcribingRef.current = false;
   }, [modelReady]);
 
   useEffect(() => {

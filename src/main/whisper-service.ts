@@ -1,6 +1,7 @@
 import { app } from "electron";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { createRequire } from "node:module";
+import { pathToFileURL } from "node:url";
 
 const _require = createRequire(import.meta.url);
 
@@ -18,6 +19,12 @@ type ProgressCallback = (progress: { status: string; progress?: number; file?: s
  * We use _require() (CJS) instead of await import() (ESM) for transformers, because:
  *   - CJS version uses require('onnxruntime-node') → interceptable via _resolveFilename
  *   - ESM version uses static `import * from "onnxruntime-node"` → not interceptable
+ *
+ * Also pre-sets env.wasm.wasmPaths to a local file:// URL. Otherwise
+ * @huggingface/transformers' onnx init code sets it to
+ * https://cdn.jsdelivr.net/npm/@huggingface/transformers@X/dist/, and
+ * onnxruntime-web's `await import(url)` rejects HTTPS URLs in Node.js with
+ * ERR_UNSUPPORTED_ESM_URL_SCHEME → "no available backend found".
  */
 function patchOnnxRuntimeForWindows(): void {
   if (process.platform !== "win32") return;
@@ -39,10 +46,17 @@ function patchOnnxRuntimeForWindows(): void {
     return originalResolve(request, parent, isMain, options);
   };
 
-  // Disable multi-threading: Electron main lacks SharedArrayBuffer (no COOP/COEP headers)
   const ort = _require("onnxruntime-web") as any;
+  // Disable multi-threading: Electron main lacks SharedArrayBuffer (no COOP/COEP headers)
   ort.env.wasm.numThreads = 1;
-  console.log("[Whisper] Patched onnxruntime-node → onnxruntime-web (WASM)");
+
+  // Point WASM loader at the local onnxruntime-web/dist directory.
+  // Trailing slash matters: onnxruntime-web concatenates filenames to this prefix.
+  const onnxWebPkg = _require.resolve("onnxruntime-web/package.json");
+  const onnxWebDist = join(dirname(onnxWebPkg), "dist");
+  ort.env.wasm.wasmPaths = pathToFileURL(onnxWebDist).href + "/";
+
+  console.log("[Whisper] Patched onnxruntime-node → onnxruntime-web (WASM), wasmPaths:", ort.env.wasm.wasmPaths);
 }
 
 export async function initWhisper(
@@ -94,6 +108,12 @@ export async function initWhisper(
   }
 }
 
+// Serialize transcribe calls: onnxruntime-web's WASM backend throws
+// "Session already started" if the same session.run() is invoked while a
+// previous run is still in flight. transformers.js only chains runs in
+// IS_WEB_ENV, not in Node, so we have to do it ourselves.
+let transcribeChain: Promise<unknown> = Promise.resolve();
+
 export async function transcribe(
   audioData: Float32Array,
   language: string = "ja"
@@ -102,13 +122,19 @@ export async function transcribe(
     throw new Error("Whisper model not loaded");
   }
 
-  const result = await whisperPipeline(audioData, {
-    language,
-    task: "transcribe",
-    return_timestamps: true,
-  });
+  const run = async () => {
+    const result = await whisperPipeline(audioData, {
+      language,
+      task: "transcribe",
+      return_timestamps: true,
+    });
+    return result as any;
+  };
 
-  return result as any;
+  const next = transcribeChain.then(run, run);
+  // Keep the chain alive even if this run rejects, so the next call still queues.
+  transcribeChain = next.catch(() => {});
+  return next;
 }
 
 export function isReady(): boolean {
